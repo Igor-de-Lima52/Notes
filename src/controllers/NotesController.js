@@ -69,8 +69,9 @@ class NotesController{
       ])
       .where("notes.user_id", user_id)
       .whereLike("notes.title", `%${title}%`)
-      .whereIn("name", filterTags)
+      .whereIn("tags.name", filterTags)
       .innerJoin("notes", "notes.id", "tags.note_id")
+      .groupBy("notes.id")
       .orderBy("notes.title");
     }
     else{
@@ -82,11 +83,11 @@ class NotesController{
     
     const userTags = await knex("tags").where({ user_id });
     const notesWithTags = notes.map(note => {
-      const noteTags = userTags.filter(tag => tag.note_id === note.id);
+      const noteTag = userTags.filter(tag => tag.note_id === note.id);
 
       return {
         ...note,
-        tags: noteTags
+        tags: noteTag
       }
     })
 
